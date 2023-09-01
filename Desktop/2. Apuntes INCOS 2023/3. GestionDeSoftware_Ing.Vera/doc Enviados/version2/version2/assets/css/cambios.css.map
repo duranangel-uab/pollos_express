@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AACA,EAAE;EAEE,IAAI,EAHK,SAAS;EAIlB,SAAS,EAAE,IAAI",
+"sources": ["../../scss/cambios.scss"],
+"names": [],
+"file": "cambios.css"
+}
