@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pollos Express</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <!-- Encabezado con logo y navegación -->
+  <header>
+    <div class="logo">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo Pollos Express">
+      <h1>Pollos Express</h1>
+    </div>
+    <nav>
+      <a href="#">Inicio</a>
+      <a href="#menu">Menú</a>
+      <a href="#">Promociones</a>
+      <a href="#">Contacto</a>
+    </nav>
+    <div class="pedido-btn">
+      <button onclick="scrollToMenu()">Haz tu Pedido</button>
+    </div>
+  </header>
+
+  <!-- Banner principal -->
+  <section class="banner">
+    <h2>¡Los Mejores Pollos Rostizados!</h2>
+    <p>Jugosos y Deliciosos</p>
+    <button onclick="scrollToMenu()">Ordena Ahora</button>
+  </section>
+
+  <!-- Menú dinámico -->
+  <section id="menu" class="menu">
+    <h2>Menú</h2>
+    <div class="grid">
+      {% for p in productos %}
+      <div class="producto">
+        <img src="{{ url_for('static', filename='images/' + p.imagen) }}" alt="{{ p.nombre }}">
+        <h3>{{ p.nombre }}</h3>
+        <p>Precio: Bs {{ p.precio }}</p>
+        <button onclick="agregarCarrito('{{ p.nombre }}', {{ p.precio }})">Agregar</button>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Carrito lateral -->
+  <aside class="carrito">
+    <h2>Tu Pedido</h2>
+    <ul id="lista-carrito"></ul>
+    <p id="total">Total: Bs 0</p>
+    <button onclick="finalizarPedido()">Finalizar Pedido</button>
+  </aside>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

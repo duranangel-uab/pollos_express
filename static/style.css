@@ -1,0 +1,107 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background: linear-gradient(180deg, #fff8e1, #ffe0b2);
+  color: #333;
+}
+
+header {
+  background: linear-gradient(90deg, #e53935, #ffb300);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  width: 50px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+.banner {
+  text-align: center;
+  padding: 60px 20px;
+  background: url('banner_pollos.jpg') center/cover no-repeat;
+  color: white;
+}
+
+.banner h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.banner button {
+  background: #ffb300;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.menu {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+}
+
+.producto {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  width: 220px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.producto:hover {
+  transform: scale(1.05);
+}
+
+.producto img {
+  width: 100%;
+  border-radius: 12px 12px 0 0;
+}
+
+button {
+  background: #ffb300;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #ffa000;
+}
+
+.carrito {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  width: 250px;
+}

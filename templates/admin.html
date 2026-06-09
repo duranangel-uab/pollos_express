@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Administrativo</title>
+</head>
+<body>
+  <h1>Panel Administrativo</h1>
+
+  <h2>Agregar Producto</h2>
+  <input id="nombre" placeholder="Nombre">
+  <input id="precio" type="number" placeholder="Precio">
+  <button onclick="agregarProducto()">Agregar</button>
+
+  <h2>Pedidos</h2>
+  <ul id="lista-pedidos"></ul>
+
+  <script>
+    async function agregarProducto() {
+      const nombre = document.getElementById('nombre').value;
+      const precio = parseFloat(document.getElementById('precio').value);
+      await fetch('/api/productos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: Date.now(), nombre, precio })
+      });
+      alert('Producto agregado');
+    }
+
+    async function cargarPedidos() {
+      const res = await fetch('/api/pedidos');
+      const data = await res.json();
+      const lista = document.getElementById('lista-pedidos');
+      lista.innerHTML = '';
+      data.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = `Pedido #${p.id} - Total Bs ${p.total}`;
+        lista.appendChild(li);
+      });
+    }
+
+    cargarPedidos();
+  </script>
+</body>
+</html>
