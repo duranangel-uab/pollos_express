@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Acceso — Pollos Express{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block extra_css %}
+<style>
+.login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--brand-dark); }
+.login-card { background: var(--surface); border-radius: var(--radius-xl); padding: 2.5rem; width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+.login-logo { text-align: center; margin-bottom: 2rem; }
+.login-logo-icon { width: 56px; height: 56px; background: var(--brand-orange); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.75rem; margin-bottom: 12px; }
+.login-logo h2 { font-size: 1.25rem; color: var(--brand-dark); }
+.login-logo p { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+.login-divider { display: flex; gap: 8px; margin: 1.5rem 0 1.25rem; }
+.role-hint { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px; font-size: 0.72rem; color: var(--text-muted); cursor: pointer; text-align: center; transition: all 0.15s; }
+.role-hint:hover { border-color: var(--brand-orange); color: var(--brand-orange); }
+.role-hint strong { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🍗</div>
+      <h2>Pollos Express</h2>
+      <p>Panel de gestión interno</p>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Usuario</label>
+        <input type="text" name="usuario" class="form-control" placeholder="Ingresa tu usuario" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:0.5rem;">Ingresar al panel</button>
+    </form>
+
+    <div class="login-divider">
+      <div class="role-hint" onclick="document.querySelector('[name=usuario]').value='admin';document.querySelector('[name=password]').value='admin123'">
+        <strong>👑 Admin</strong>admin / admin123
+      </div>
+      <div class="role-hint" onclick="document.querySelector('[name=usuario]').value='ventas';document.querySelector('[name=password]').value='ventas123'">
+        <strong>📋 Ventas</strong>ventas / ventas123
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="/" style="color:var(--text-muted);font-size:0.8rem;text-decoration:none;">← Volver al sitio</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

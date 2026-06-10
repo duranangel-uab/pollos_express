@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Productos — Admin{% endblock %}
+
+{% block body %}
+<div class="dash-layout">
+  {% set role_label = "Administrador" %}
+  {% include "_sidebar.html" %}
+
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div class="topbar-title">🍗 Gestión de productos</div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm" onclick="alert('Función de agregar producto en desarrollo')">+ Nuevo producto</button>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      <div class="page-heading">
+        <h1>Productos del menú</h1>
+        <p>Administra los precios, descripciones y disponibilidad del menú.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
+        {% for p in productos %}
+        <div class="card" style="padding:1.25rem;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:52px;height:52px;background:linear-gradient(135deg,#F4A261,#D62828);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">🍗</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:1rem;margin-bottom:2px;">{{ p.nombre }}</div>
+              <span class="badge badge-orange">{{ p.categoria }}</span>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin:12px 0 10px;">{{ p.descripcion }}</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:1.4rem;font-weight:700;color:var(--brand-red);">Bs {{ p.precio }}</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="alert('Editar en desarrollo')">✏️ Editar</button>
+              <button class="btn btn-sm" style="background:#FDECEA;color:var(--brand-red);border:none;" onclick="alert('Eliminar en desarrollo')">🗑️</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

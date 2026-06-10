@@ -1,0 +1,57 @@
+<!-- Shared sidebar component -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="/">
+      <div class="sidebar-logo-icon">🍗</div>
+      <div class="sidebar-logo-text">
+        Pollos Express
+        <small>{{ role_label }}</small>
+      </div>
+    </a>
+  </div>
+
+  <nav class="sidebar-nav">
+    {% if session.rol == 'admin' %}
+    <div class="sidebar-section">Panel</div>
+    <a href="/admin" class="sidebar-link {{ 'active' if request.path == '/admin' else '' }}">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <a href="/admin/pedidos" class="sidebar-link {{ 'active' if '/admin/pedidos' in request.path else '' }}">
+      <span class="icon">📦</span> Pedidos
+    </a>
+    <a href="/admin/productos" class="sidebar-link {{ 'active' if '/admin/productos' in request.path else '' }}">
+      <span class="icon">🍗</span> Productos
+    </a>
+    <div class="sidebar-section">Accesos</div>
+    <a href="/ventas" class="sidebar-link">
+      <span class="icon">📋</span> Vista Ventas
+    </a>
+    {% endif %}
+
+    {% if session.rol == 'ventas' %}
+    <div class="sidebar-section">Ventas</div>
+    <a href="/ventas" class="sidebar-link {{ 'active' if request.path == '/ventas' else '' }}">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <a href="/ventas/nuevo-pedido" class="sidebar-link {{ 'active' if '/nuevo-pedido' in request.path else '' }}">
+      <span class="icon">➕</span> Nuevo pedido
+    </a>
+    {% endif %}
+
+    <div class="sidebar-section">General</div>
+    <a href="/" class="sidebar-link" target="_blank">
+      <span class="icon">🌐</span> Ver sitio web
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">{{ session.nombre[0] | upper }}</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">{{ session.nombre }}</div>
+        <div class="sidebar-user-role">{{ session.rol }}</div>
+      </div>
+    </div>
+    <a href="/logout" class="btn btn-ghost btn-sm btn-block">Cerrar sesión</a>
+  </div>
+</aside>

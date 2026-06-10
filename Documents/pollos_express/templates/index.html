@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Pollos Express — El sabor que enamora{% endblock %}
+
+{% block body %}
+<!-- Header -->
+<header class="site-header">
+  <a href="/" class="site-logo">
+    <div class="site-logo-icon">🍗</div>
+    <span class="site-logo-text">Pollos <span>Express</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="#menu" class="active">Menú</a>
+    <a href="#nosotros">Nosotros</a>
+    <a href="/login" style="background: rgba(247,127,0,0.2); color: #FCBF49; margin-left:8px;">Panel</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <span class="hero-eyebrow">🔥 Recién a la brasa</span>
+    <h1>El pollo que te hace <em>volver</em> siempre</h1>
+    <p>Pollos a la brasa y combos familiares con receta propia desde 2010. Pedidos directos, rápidos y sabrosos.</p>
+    <div class="hero-actions">
+      <button class="btn btn-secondary btn-lg" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">Ver menú completo</button>
+      <button class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.4);color:#fff;" onclick="openCart()">🛒 Mi pedido</button>
+    </div>
+  </div>
+</section>
+
+<!-- Menu -->
+<div id="menu" class="section">
+  <div class="section-header">
+    <div class="section-eyebrow">Nuestro menú</div>
+    <h2>¿Qué se te antoja hoy?</h2>
+    <p class="section-sub">Todo preparado al momento con ingredientes frescos.</p>
+  </div>
+
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="filterCategory('Todos', this)">Todos</button>
+    {% set cats = productos | map(attribute='categoria') | unique | list %}
+    {% for cat in cats %}
+    <button class="cat-tab" onclick="filterCategory('{{ cat }}', this)">{{ cat }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="products-grid">
+    {% for p in productos %}
+    <div class="product-card" data-cat="{{ p.categoria }}">
+      <div class="product-img no-img" style="background: linear-gradient(135deg, {{ loop.cycle('#F4A261','#E76F51','#D62828','#FCBF49','#F77F00','#C1440E') }}, #8B2500);">
+        {{ loop.cycle('🍗','🍖','🥘','🍟','🍽️','🥗') }}
+      </div>
+      <div class="product-body">
+        <div class="product-cat">{{ p.categoria }}</div>
+        <div class="product-name">{{ p.nombre }}</div>
+        <div class="product-desc">{{ p.descripcion }}</div>
+        <div class="product-footer">
+          <div class="product-price">Bs {{ p.precio }} <span>bolivianos</span></div>
+          <button class="btn btn-primary btn-sm" onclick="addToCart({{ p.id }}, '{{ p.nombre }}', {{ p.precio }})">
+            + Agregar
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Why us -->
+<div style="background: var(--brand-dark); color: white; padding: 60px 2rem;">
+  <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+    <div class="section-eyebrow" style="color: var(--brand-yellow);">¿Por qué elegirnos?</div>
+    <h2 style="color: white; margin-bottom: 2.5rem;">La diferencia está en los detalles</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+      {% for item in [('🔥','A la brasa de verdad','Horno de leña para ese sabor único y ahumado que no se logra de otra forma.'),('🥬','Ingredientes frescos','Compramos local cada mañana. Sin congelados, sin conservantes.'),('⚡','Entrega rápida','Tu pedido listo en 20 minutos. Si tardamos más, te damos un descuento.'),('❤️','Receta familiar','La misma receta de siempre, desde que el abuelo fundó el negocio.')] %}
+      <div>
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">{{ item[0] }}</div>
+        <h4 style="color: var(--brand-yellow); margin-bottom: 6px;">{{ item[1] }}</h4>
+        <p style="color: rgba(255,255,255,0.6); font-size: 0.875rem;">{{ item[2] }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <p>© 2024 <strong style="color:#fff;">Pollos Express</strong> · Cochabamba, Bolivia · <a href="/login">Acceso empleados</a></p>
+</footer>
+
+<!-- Cart FAB -->
+<div style="position:relative;">
+  <button class="cart-fab" onclick="openCart()">
+    🛒
+    <span class="cart-badge" id="cart-badge" style="display:none;">0</span>
+  </button>
+</div>
+
+<!-- Cart overlay -->
+<div class="cart-overlay" id="cart-overlay"></div>
+
+<!-- Cart panel -->
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-header">
+    <h3>🛒 Tu pedido</h3>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-empty" id="cart-empty">Tu carrito está vacío.<br>Agrega algo del menú 👆</div>
+
+  <div class="cart-footer" id="cart-footer" style="display:none;">
+    <div class="cart-form">
+      <div class="form-group" style="margin-bottom:8px;">
+        <input class="form-control" id="cliente-nombre" placeholder="Tu nombre *" required>
+      </div>
+      <div class="form-group" style="margin-bottom:8px;">
+        <input class="form-control" id="cliente-telefono" placeholder="Teléfono *" required>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <input class="form-control" id="cliente-direccion" placeholder="Dirección de entrega (opcional)">
+      </div>
+    </div>
+    <div class="cart-total-row">
+      <span class="label">Total del pedido</span>
+      <span class="value" id="cart-total">Bs 0</span>
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" id="checkout-btn" onclick="checkout()">
+      Confirmar pedido
+    </button>
+  </div>
+</div>
+{% endblock %}

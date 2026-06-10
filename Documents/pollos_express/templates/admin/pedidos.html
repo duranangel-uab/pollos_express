@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Pedidos — Admin{% endblock %}
+
+{% block body %}
+<div class="dash-layout">
+  {% set role_label = "Administrador" %}
+  {% include "_sidebar.html" %}
+
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div class="topbar-title">📦 Gestión de pedidos</div>
+      <div class="topbar-actions">
+        <a href="/ventas/nuevo-pedido" class="btn btn-primary btn-sm">+ Nuevo pedido</a>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      <div class="page-heading">
+        <h1>Todos los pedidos</h1>
+        <p>Visualiza y gestiona el estado de cada pedido recibido.</p>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="cat-tabs" style="justify-content:flex-start;margin-bottom:1.5rem;">
+        <button class="cat-tab active" onclick="filtrarEstado('todos', this)">Todos ({{ pedidos|length }})</button>
+        <button class="cat-tab" onclick="filtrarEstado('pendiente', this)">⏳ Pendientes</button>
+        <button class="cat-tab" onclick="filtrarEstado('en_preparacion', this)">👨‍🍳 Preparando</button>
+        <button class="cat-tab" onclick="filtrarEstado('listo', this)">✅ Listos</button>
+        <button class="cat-tab" onclick="filtrarEstado('entregado', this)">📦 Entregados</button>
+      </div>
+
+      <div class="card" style="padding:0;">
+        <div class="table-wrap">
+          {% if pedidos %}
+          <table id="pedidos-table">
+            <thead>
+              <tr>
+                <th>#Pedido</th><th>Cliente</th><th>Teléfono</th><th>Dirección</th>
+                <th>Productos</th><th>Total</th><th>Estado</th><th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in pedidos | reverse %}
+              <tr data-estado="{{ p.estado }}">
+                <td><strong style="color:var(--brand-red);">#{{ p.id }}</strong></td>
+                <td>{{ p.get('nombre', 'Anónimo') }}</td>
+                <td style="font-size:0.8rem;">{{ p.get('telefono','—') }}</td>
+                <td style="font-size:0.8rem;max-width:140px;">{{ p.get('direccion','—')[:30] }}</td>
+                <td>
+                  {% for item in p.get('productos',[]) %}
+                  <span style="display:inline-block;font-size:0.75rem;background:var(--surface-2);padding:2px 8px;border-radius:99px;margin:1px;border:1px solid var(--border);">{{ item.nombre }} ×{{ item.get('qty',1) }}</span>
+                  {% endfor %}
+                </td>
+                <td><strong>Bs {{ p.total }}</strong></td>
+                <td>
+                  <select class="status-select" onchange="updateOrderStatus({{ p.id }}, this)" style="border-radius:99px;padding:5px 10px;border:1.5px solid var(--border);background:var(--surface);font-size:0.78rem;font-weight:600;cursor:pointer;">
+                    <option value="pendiente" {{ 'selected' if p.estado=='pendiente' }}>⏳ Pendiente</option>
+                    <option value="en_preparacion" {{ 'selected' if p.estado=='en_preparacion' }}>👨‍🍳 Preparando</option>
+                    <option value="listo" {{ 'selected' if p.estado=='listo' }}>✅ Listo</option>
+                    <option value="entregado" {{ 'selected' if p.estado=='entregado' }}>📦 Entregado</option>
+                  </select>
+                </td>
+                <td style="font-size:0.78rem;color:var(--text-muted);">{{ p.get('fecha','—')[:16] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div style="text-align:center;padding:4rem;color:var(--text-muted);">
+            <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+            <p>No hay pedidos todavía.<br>Los pedidos web y presenciales aparecerán aquí.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filtrarEstado(estado, btn) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#pedidos-table tbody tr').forEach(row => {
+    row.style.display = (estado === 'todos' || row.dataset.estado === estado) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

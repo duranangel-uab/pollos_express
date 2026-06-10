@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Panel Ventas — Pollos Express{% endblock %}
+
+{% block body %}
+<div class="dash-layout">
+  {% set role_label = "Ventas" %}
+  {% include "_sidebar.html" %}
+
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div class="topbar-title">📋 Panel de Ventas</div>
+      <div class="topbar-actions">
+        <a href="/ventas/nuevo-pedido" class="btn btn-primary btn-sm">+ Nuevo pedido</a>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      <div class="page-heading">
+        <h1>¡Hola, {{ usuario }}! 👋</h1>
+        <p>Aquí están los pedidos activos del día.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-label">Pendientes</div>
+          <div class="stat-value">{{ pedidos | selectattr('estado','eq','pendiente') | list | length }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👨‍🍳</div>
+          <div class="stat-label">En preparación</div>
+          <div class="stat-value">{{ pedidos | selectattr('estado','eq','en_preparacion') | list | length }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Listos</div>
+          <div class="stat-value">{{ pedidos | selectattr('estado','eq','listo') | list | length }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-label">Entregados hoy</div>
+          <div class="stat-value">{{ pedidos | selectattr('estado','eq','entregado') | list | length }}</div>
+        </div>
+      </div>
+
+      <!-- Active orders -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <span class="card-title">Pedidos activos</span>
+          <span class="badge badge-orange">{{ pedidos_activos | length }} activos</span>
+        </div>
+        {% if pedidos_activos %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;">
+          {% for p in pedidos_activos %}
+          <div style="border:1.5px solid {{ '#FFC107' if p.estado=='pendiente' else '#0D6EFD' }};border-radius:var(--radius-md);padding:1rem;background:{{ '#FFFBF0' if p.estado=='pendiente' else '#F0F5FF' }};">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <strong>#{{ p.id }}</strong>
+              <span class="badge {{ 'badge-pending' if p.estado=='pendiente' else 'badge-prep' }}">
+                {{ '⏳ Pendiente' if p.estado=='pendiente' else '👨‍🍳 Preparando' }}
+              </span>
+            </div>
+            <div style="font-size:0.85rem;font-weight:600;margin-bottom:4px;">{{ p.get('nombre','Cliente web') }}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">{{ p.get('telefono','Sin teléfono') }}</div>
+            <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:10px;">
+              {% for item in p.get('productos',[]) %}{{ item.nombre }}{% if not loop.last %}, {% endif %}{% endfor %}
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="color:var(--brand-red);">Bs {{ p.total }}</strong>
+              <select onchange="updateOrderStatus({{ p.id }}, this); location.reload();" style="border-radius:99px;padding:4px 10px;border:1.5px solid var(--border);font-size:0.78px;font-weight:600;cursor:pointer;background:white;font-size:0.78rem;">
+                <option value="pendiente" {{ 'selected' if p.estado=='pendiente' }}>⏳ Pendiente</option>
+                <option value="en_preparacion" {{ 'selected' if p.estado=='en_preparacion' }}>👨‍🍳 Preparando</option>
+                <option value="listo" {{ 'selected' if p.estado=='listo' }}>✅ Listo</option>
+                <option value="entregado" {{ 'selected' if p.estado=='entregado' }}>📦 Entregado</option>
+              </select>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:2.5rem;color:var(--text-muted);">
+          <div style="font-size:2.5rem;margin-bottom:8px;">🎉</div>
+          <p>Sin pedidos activos ahora mismo.<br><a href="/ventas/nuevo-pedido" style="color:var(--brand-orange);">Registrar uno nuevo</a></p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- All orders table -->
+      <div class="card" style="padding:0;">
+        <div class="card-header" style="padding:1rem 1.25rem;">
+          <span class="card-title">Historial del día</span>
+        </div>
+        <div class="table-wrap">
+          {% if pedidos %}
+          <table>
+            <thead><tr><th>#</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Estado</th><th>Hora</th></tr></thead>
+            <tbody>
+              {% for p in pedidos | reverse %}
+              <tr>
+                <td><strong>#{{ p.id }}</strong></td>
+                <td>{{ p.get('nombre','Anónimo') }}</td>
+                <td style="font-size:0.78rem;color:var(--text-muted);">
+                  {% for item in p.get('productos',[]) %}{{ item.nombre }}×{{ item.get('qty',1) }}{% if not loop.last %}, {% endif %}{% endfor %}
+                </td>
+                <td><strong>Bs {{ p.total }}</strong></td>
+                <td>
+                  <span class="badge {{ {'pendiente':'badge-pending','en_preparacion':'badge-prep','listo':'badge-ready','entregado':'badge-done'}[p.estado] }}">
+                    {{ {'pendiente':'⏳ Pendiente','en_preparacion':'👨‍🍳 Preparando','listo':'✅ Listo','entregado':'📦 Entregado'}[p.estado] }}
+                  </span>
+                </td>
+                <td style="font-size:0.78rem;color:var(--text-muted);">{{ p.get('fecha','—')[11:16] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div style="text-align:center;padding:3rem;color:var(--text-muted);">No hay pedidos todavía hoy.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

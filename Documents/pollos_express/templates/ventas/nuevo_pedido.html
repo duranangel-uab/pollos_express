@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Pedido — Ventas{% endblock %}
+
+{% block body %}
+<div class="dash-layout">
+  {% set role_label = "Ventas" %}
+  {% include "_sidebar.html" %}
+
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div class="topbar-title">➕ Nuevo pedido presencial</div>
+      <div class="topbar-actions">
+        <a href="/ventas" class="btn btn-ghost btn-sm">← Volver</a>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      <div class="page-heading">
+        <h1>Registrar pedido</h1>
+        <p>Crea un pedido presencial o telefónico y envíalo directamente a cocina.</p>
+      </div>
+
+      <div class="order-form-grid">
+        <!-- Product selection -->
+        <div>
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-header">
+              <span class="card-title">Seleccionar productos</span>
+            </div>
+            <div class="prod-select-grid">
+              {% for p in productos %}
+              <div class="prod-select-card" id="card-{{ p.id }}" onclick="toggleProduct({{ p.id }})">
+                <div class="prod-select-emoji">🍗</div>
+                <div class="prod-select-name">{{ p.nombre }}</div>
+                <div class="prod-select-price">Bs {{ p.precio }}</div>
+                <div class="prod-select-qty" id="qty-{{ p.id }}" style="display:none;">
+                  <button type="button" class="qty-btn" onclick="event.stopPropagation();changeQtyPOS({{ p.id }},-1)">−</button>
+                  <span id="qty-val-{{ p.id }}">1</span>
+                  <button type="button" class="qty-btn" onclick="event.stopPropagation();changeQtyPOS({{ p.id }},1)">+</button>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Order summary -->
+        <div style="position:sticky;top:80px;">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Resumen del pedido</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nombre del cliente</label>
+              <input type="text" class="form-control" id="pos-nombre" placeholder="Nombre o mesa">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Teléfono</label>
+              <input type="text" class="form-control" id="pos-telefono" placeholder="7xxxxxxx">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo de pedido</label>
+              <select class="form-control" id="pos-tipo">
+                <option>Para llevar</option>
+                <option>En local</option>
+                <option>Delivery</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dirección (solo delivery)</label>
+              <input type="text" class="form-control" id="pos-direccion" placeholder="Dirección de entrega">
+            </div>
+
+            <div id="pos-items" style="margin:1rem 0;border-top:1px solid var(--border);padding-top:1rem;">
+              <p style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:1rem 0;">Selecciona productos del menú</p>
+            </div>
+
+            <div style="border-top:1px solid var(--border);padding-top:1rem;margin-bottom:1rem;">
+              <div style="display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;">
+                <span>Total</span>
+                <span style="color:var(--brand-red);" id="pos-total">Bs 0</span>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-block btn-lg" id="pos-submit" onclick="submitPOS()">
+              ✅ Confirmar pedido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const productos = {{ productos | tojson }};
+const seleccion = {};
+
+function toggleProduct(id) {
+  const card = document.getElementById(`card-${id}`);
+  const qtyDiv = document.getElementById(`qty-${id}`);
+  if (seleccion[id]) {
+    delete seleccion[id];
+    card.classList.remove('selected');
+    qtyDiv.style.display = 'none';
+  } else {
+    seleccion[id] = 1;
+    card.classList.add('selected');
+    qtyDiv.style.display = 'flex';
+    document.getElementById(`qty-val-${id}`).textContent = 1;
+  }
+  renderPOS();
+}
+
+function changeQtyPOS(id, delta) {
+  seleccion[id] = (seleccion[id] || 0) + delta;
+  if (seleccion[id] <= 0) {
+    toggleProduct(id); return;
+  }
+  document.getElementById(`qty-val-${id}`).textContent = seleccion[id];
+  renderPOS();
+}
+
+function renderPOS() {
+  const items = Object.entries(seleccion).map(([id, qty]) => {
+    const p = productos.find(x => x.id == id);
+    return { ...p, qty };
+  });
+  const total = items.reduce((s, i) => s + i.precio * i.qty, 0);
+  document.getElementById('pos-total').textContent = `Bs ${total}`;
+  const container = document.getElementById('pos-items');
+  if (items.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:1rem 0;">Selecciona productos del menú</p>';
+    return;
+  }
+  container.innerHTML = items.map(i => `
+    <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.875rem;border-bottom:1px solid var(--border);">
+      <span>${i.nombre} ×${i.qty}</span>
+      <strong>Bs ${i.precio * i.qty}</strong>
+    </div>
+  `).join('');
+}
+
+async function submitPOS() {
+  const items = Object.entries(seleccion).map(([id, qty]) => {
+    const p = productos.find(x => x.id == id);
+    return { ...p, qty };
+  });
+  if (items.length === 0) { alert('Selecciona al menos un producto.'); return; }
+
+  const nombre = document.getElementById('pos-nombre').value.trim() || 'Presencial';
+  const telefono = document.getElementById('pos-telefono').value.trim();
+  const tipo = document.getElementById('pos-tipo').value;
+  const direccion = document.getElementById('pos-direccion').value.trim();
+  const total = items.reduce((s, i) => s + i.precio * i.qty, 0);
+
+  const btn = document.getElementById('pos-submit');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  try {
+    const res = await fetch('/api/pedidos', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ total, productos: items, nombre, telefono, tipo, direccion })
+    });
+    const data = await res.json();
+    window.location.href = '/ventas?success=1&num=' + data.numero;
+  } catch(e) {
+    alert('Error al registrar el pedido.');
+    btn.disabled = false; btn.textContent = '✅ Confirmar pedido';
+  }
+}
+</script>
+{% endblock %}
