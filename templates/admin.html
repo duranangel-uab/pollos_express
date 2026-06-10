@@ -1,45 +1,373 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Panel Administrativo</title>
-</head>
-<body>
-  <h1>Panel Administrativo</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Administrativo - Pollos Express</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-  <h2>Agregar Producto</h2>
-  <input id="nombre" placeholder="Nombre">
-  <input id="precio" type="number" placeholder="Precio">
-  <button onclick="agregarProducto()">Agregar</button>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+      }
 
-  <h2>Pedidos</h2>
-  <ul id="lista-pedidos"></ul>
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
 
-  <script>
-    async function agregarProducto() {
-      const nombre = document.getElementById('nombre').value;
-      const precio = parseFloat(document.getElementById('precio').value);
-      await fetch('/api/productos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: Date.now(), nombre, precio })
-      });
-      alert('Producto agregado');
-    }
+      header {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-    async function cargarPedidos() {
-      const res = await fetch('/api/pedidos');
-      const data = await res.json();
-      const lista = document.getElementById('lista-pedidos');
-      lista.innerHTML = '';
-      data.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = `Pedido #${p.id} - Total Bs ${p.total}`;
-        lista.appendChild(li);
-      });
-    }
+      h1 {
+        color: #e53935;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-    cargarPedidos();
-  </script>
-</body>
+      .btn-volver {
+        background: #667eea;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: transform 0.2s;
+        display: inline-block;
+      }
+
+      .btn-volver:hover {
+        transform: translateY(-2px);
+      }
+
+      .seccion {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .seccion h2 {
+        color: #333;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #ffb300;
+        padding-bottom: 10px;
+      }
+
+      .form-producto {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .form-producto input {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .form-producto button {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+      }
+
+      .form-producto button:hover {
+        background: #45a049;
+      }
+
+      .grid-productos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .producto-card {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #ffb300;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .producto-info h4 {
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .producto-info p {
+        color: #e53935;
+        font-weight: bold;
+      }
+
+      .btn-eliminar {
+        background: #f44336;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .btn-eliminar:hover {
+        background: #da190b;
+      }
+
+      .tabla-pedidos {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .tabla-pedidos th,
+      .tabla-pedidos td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .tabla-pedidos th {
+        background: #ffb300;
+        color: white;
+      }
+
+      .estado {
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .estado-pendiente {
+        background: #ff9800;
+        color: white;
+      }
+
+      .estado-preparando {
+        background: #2196f3;
+        color: white;
+      }
+
+      .estado-listoo {
+        background: #4caf50;
+        color: white;
+      }
+
+      select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+
+      .detalle-pedido {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      @media (max-width: 768px) {
+        .tabla-pedidos {
+          font-size: 12px;
+        }
+
+        .tabla-pedidos th,
+        .tabla-pedidos td {
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🍗 Panel Administrativo - Pollos Express</h1>
+        <a href="/" class="btn-volver">← Volver a la Tienda</a>
+      </header>
+
+      <div class="seccion">
+        <h2>➕ Agregar Nuevo Producto</h2>
+        <div class="form-producto">
+          <input type="text" id="nombre" placeholder="Nombre del producto" />
+          <input type="number" id="precio" placeholder="Precio (Bs)" />
+          <input
+            type="text"
+            id="imagen"
+            placeholder="Nombre de imagen (ej: producto.jpg)"
+          />
+          <button onclick="agregarProducto()">Agregar Producto</button>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <h2>📦 Productos en el Menú</h2>
+        <div id="lista-productos" class="grid-productos"></div>
+      </div>
+
+      <div class="seccion">
+        <h2>📋 Lista de Pedidos</h2>
+        <div style="overflow-x: auto">
+          <table class="tabla-pedidos" id="tabla-pedidos">
+            <thead>
+              <tr>
+                <th>ID Pedido</th>
+                <th>Productos</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="lista-pedidos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Cargar productos al inicio
+      async function cargarProductos() {
+        const res = await fetch("/api/productos");
+        const productos = await res.json();
+        const lista = document.getElementById("lista-productos");
+        lista.innerHTML = "";
+
+        productos.forEach((p) => {
+          const div = document.createElement("div");
+          div.className = "producto-card";
+          div.innerHTML = `
+          <div class="producto-info">
+            <h4>${p.nombre}</h4>
+            <p>Bs ${p.precio}</p>
+            ${p.imagen ? `<small>📷 ${p.imagen}</small>` : ""}
+          </div>
+          <button class="btn-eliminar" onclick="eliminarProducto(${p.id})">🗑️ Eliminar</button>
+        `;
+          lista.appendChild(div);
+        });
+      }
+
+      async function agregarProducto() {
+        const nombre = document.getElementById("nombre").value;
+        const precio = parseFloat(document.getElementById("precio").value);
+        const imagen = document.getElementById("imagen").value || "default.jpg";
+
+        if (!nombre || !precio) {
+          alert("Por favor complete todos los campos");
+          return;
+        }
+
+        const nuevoProducto = {
+          id: Date.now(),
+          nombre: nombre,
+          precio: precio,
+          imagen: imagen,
+        };
+
+        await fetch("/api/productos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevoProducto),
+        });
+
+        alert("✅ Producto agregado exitosamente");
+        document.getElementById("nombre").value = "";
+        document.getElementById("precio").value = "";
+        document.getElementById("imagen").value = "";
+        cargarProductos();
+      }
+
+      async function eliminarProducto(id) {
+        if (confirm("¿Está seguro de eliminar este producto?")) {
+          await fetch(`/api/productos/${id}`, {
+            method: "DELETE",
+          });
+          alert("Producto eliminado");
+          cargarProductos();
+        }
+      }
+
+      async function cargarPedidos() {
+        const res = await fetch("/api/pedidos");
+        const pedidos = await res.json();
+        const tbody = document.getElementById("lista-pedidos");
+        tbody.innerHTML = "";
+
+        if (pedidos.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" style="text-align: center;">No hay pedidos aún</td></tr>';
+          return;
+        }
+
+        pedidos.forEach((p) => {
+          const tr = document.createElement("tr");
+
+          // Lista de productos
+          const productosLista = p.productos
+            .map((prod) => `${prod.nombre} (Bs ${prod.precio})`)
+            .join(", ");
+
+          tr.innerHTML = `
+          <td><strong>#${p.id}</strong></td>
+          <td>
+            ${productosLista}
+            <div class="detalle-pedido">📦 ${p.productos.length} producto(s)</div>
+          </td>
+          <td><strong>Bs ${p.total}</strong></td>
+          <td>
+            <span class="estado estado-${p.estado.toLowerCase()}">${p.estado}</span>
+          </td>
+          <td>
+            <select onchange="actualizarEstado(${p.id}, this.value)">
+              <option value="Pendiente" ${p.estado === "Pendiente" ? "selected" : ""}>⏳ Pendiente</option>
+              <option value="Preparando" ${p.estado === "Preparando" ? "selected" : ""}>👨‍🍳 Preparando</option>
+              <option value="Listo" ${p.estado === "Listo" ? "selected" : ""}>✅ Listo</option>
+            </select>
+          </td>
+        `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      async function actualizarEstado(id, nuevoEstado) {
+        await fetch(`/api/pedidos/${id}/estado`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ estado: nuevoEstado }),
+        });
+        alert(`Estado del pedido #${id} actualizado a: ${nuevoEstado}`);
+        cargarPedidos();
+      }
+
+      // Cargar datos iniciales
+      cargarProductos();
+      cargarPedidos();
+
+      // Actualizar pedidos cada 5 segundos
+      setInterval(cargarPedidos, 5000);
+    </script>
+  </body>
 </html>
