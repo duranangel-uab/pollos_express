@@ -1,58 +1,119 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Pollos Express</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-  <!-- Encabezado con logo y navegación -->
-  <header>
-    <div class="logo">
-      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo Pollos Express">
-      <h1>Pollos Express</h1>
-    </div>
-    <nav>
-      <a href="#">Inicio</a>
-      <a href="#menu">Menú</a>
-      <a href="#">Promociones</a>
-      <a href="#">Contacto</a>
-    </nav>
-    <div class="pedido-btn">
-      <button onclick="scrollToMenu()">Haz tu Pedido</button>
-    </div>
-  </header>
-
-  <!-- Banner principal -->
-  <section class="banner">
-    <h2>¡Los Mejores Pollos Rostizados!</h2>
-    <p>Jugosos y Deliciosos</p>
-    <button onclick="scrollToMenu()">Ordena Ahora</button>
-  </section>
-
-  <!-- Menú dinámico -->
-  <section id="menu" class="menu">
-    <h2>Menú</h2>
-    <div class="grid">
-      {% for p in productos %}
-      <div class="producto">
-        <img src="{{ url_for('static', filename='images/' + p.imagen) }}" alt="{{ p.nombre }}">
-        <h3>{{ p.nombre }}</h3>
-        <p>Precio: Bs {{ p.precio }}</p>
-        <button onclick="agregarCarrito('{{ p.nombre }}', {{ p.precio }})">Agregar</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pollos Express - Los Mejores Pollos Rostizados</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Encabezado con logo y navegación -->
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🍗</div>
+        <h1>Pollos Express</h1>
       </div>
-      {% endfor %}
-    </div>
-  </section>
+      <nav>
+        <a href="#inicio">Inicio</a>
+        <a href="#menu">Menú</a>
+        <a href="#promociones">Promociones</a>
+        <a href="#contacto">Contacto</a>
+        <a href="/admin" class="admin-link">👑 Admin</a>
+      </nav>
+      <div class="pedido-btn">
+        <button onclick="scrollToMenu()">📱 Haz tu Pedido</button>
+      </div>
+    </header>
 
-  <!-- Carrito lateral -->
-  <aside class="carrito">
-    <h2>Tu Pedido</h2>
-    <ul id="lista-carrito"></ul>
-    <p id="total">Total: Bs 0</p>
-    <button onclick="finalizarPedido()">Finalizar Pedido</button>
-  </aside>
+    <!-- Banner principal -->
+    <section id="inicio" class="banner">
+      <h2>¡Los Mejores Pollos Rostizados!</h2>
+      <p>Jugosos, Deliciosos y al Mejor Precio</p>
+      <button onclick="scrollToMenu()">Ordena Ahora 🍗</button>
+    </section>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+    <!-- Sección de Promociones -->
+    <section id="promociones" class="promociones">
+      <h2>🎉 Promociones Especiales</h2>
+      <div class="promo-grid">
+        <div class="promo-card">
+          <div class="promo-icon">🔥</div>
+          <h3>2x1 en Alitas</h3>
+          <p>Martes y Jueves</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon">🎂</div>
+          <h3>Combo Familiar</h3>
+          <p>20% de descuento</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon">🚚</div>
+          <h3>Envío Gratis</h3>
+          <p>Pedidos + Bs 100</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Menú dinámico -->
+    <section id="menu" class="menu">
+      <h2>📋 Nuestro Menú</h2>
+      <div class="grid" id="productos-grid">
+        {% for p in productos %}
+        <div class="producto">
+          <div class="producto-imagen">🍗</div>
+          <h3>{{ p.nombre }}</h3>
+          <p class="precio">Bs {{ p.precio }}</p>
+          <button
+            onclick="agregarCarrito('{{ p.nombre }}', {{ p.precio }}, {{ p.id }})"
+          >
+            🛒 Agregar al Carrito
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Sección de Contacto -->
+    <section id="contacto" class="contacto">
+      <h2>📞 Contacto</h2>
+      <div class="contacto-info">
+        <div>
+          <p>📍 Dirección: Av. Principal #123</p>
+          <p>📱 Teléfono: +591 12345678</p>
+          <p>✉️ Email: contacto@pollosexpress.com</p>
+        </div>
+        <div>
+          <p>⏰ Horario: Lun-Dom 10am - 10pm</p>
+          <p>🌟 ¡Síguenos en redes sociales!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Carrito lateral -->
+    <aside class="carrito" id="carrito-sidebar">
+      <div class="carrito-header">
+        <h2>🛒 Tu Pedido</h2>
+        <button class="close-carrito" onclick="toggleCarrito()">✕</button>
+      </div>
+      <div id="carrito-vacio" style="text-align: center; color: #999">
+        Tu carrito está vacío
+      </div>
+      <ul id="lista-carrito" class="carrito-lista"></ul>
+      <div class="carrito-footer">
+        <p id="total" class="total">Total: Bs 0</p>
+        <button onclick="finalizarPedido()" class="btn-finalizar">
+          ✅ Finalizar Pedido
+        </button>
+      </div>
+    </aside>
+
+    <button class="carrito-flotante" onclick="toggleCarrito()">
+      🛒 <span id="carrito-count">0</span>
+    </button>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
 </html>
